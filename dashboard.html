@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .dash {
+      width: min(900px, 92vw);
+      padding: 28px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .card {
+      flex: 1;
+      min-width: 180px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06);
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .btn {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      background: #978080;
+      color: white;
+    }
+    .muted { opacity: 0.85; }
+  </style>
+</head>
+
+<body>
+  <div class="dash">
+    <div class="topbar">
+      <div>
+        <h1 style="margin:0;">Dashboard</h1>
+        <div class="muted" id="whoami">Loading user...</div>
+      </div>
+      <button class="btn" id="logout-btn">Logout</button>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <h3 style="margin-top:0;">Total Patients</h3>
+        <div id="total-patients">0</div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;">Active Devices</h3>
+        <div id="active-devices">0</div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;">Critical Alerts</h3>
+        <div id="critical-alerts">0</div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;">Normal Patients</h3>
+        <div id="normal-patients">0</div>
+      </div>
+    </div>
+
+    <p id="dash-msg" style="margin-top:14px;"></p>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
