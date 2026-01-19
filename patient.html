@@ -8,24 +8,29 @@
     <link rel="stylesheet" href="patient.css" />
 </head>
 
+
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div>
-        <h1 style="margin:0;" id="p-title">Patient</h1>
-        <div class="small" id="p-sub"></div>
-      </div>
-      <a class="btn" href="dashboard.html">Back to Dashboard</a>
+    <video id="bgVideo" class="bg-video" autoplay muted playsinline></video>
+    <div class="bg-overlay"></div>
+    
+    <div class="wrap">
+        <div class="top">
+            <div>
+                <h1 style="margin:0;" id="p-title">Patient</h1>
+                <div class="small" id="p-sub"></div>
+            </div>
+            <a class="btn" href="dashboard.html">Back to Dashboard</a>
+        </div>
+        
+        <div class="grid" id="p-cards"></div>
+        
+        <h2 style="margin-top:20px;">Alerts</h2>
+        <ul class="list" id="p-alerts"></ul>
+        
+        <p id="p-msg" style="margin-top:14px;"></p>
     </div>
-
-    <div class="grid" id="p-cards"></div>
-
-    <h2 style="margin-top:20px;">Alerts</h2>
-    <ul class="list" id="p-alerts"></ul>
-
-    <p id="p-msg" style="margin-top:14px;"></p>
-  </div>
-
-  <script src="patient.js"></script>
+    
+    <script src="patient.js"></script>
+    <script src="bg-video.js"></script>
 </body>
 </html>

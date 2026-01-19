@@ -10,7 +10,11 @@
 
 </head>
 
+
 <body>
+    <video id="bgVideo" class="bg-video" autoplay muted playsinline></video>
+    <div class="bg-overlay"></div>
+    
     <div class="dash">
         <div class="topbar">
             <div>
@@ -19,7 +23,7 @@
             </div>
             <button class="btn" id="logout-btn">Logout</button>
         </div>
-
+        
         <div class="row">
             <div class="stat-card">
                 <h3 style="margin-top:0;">Total Patients</h3>
@@ -38,12 +42,12 @@
                 <div id="normal-patients">0</div>
             </div>
         </div>
-
+        
         <div class="controls">
             <div class="search">
                 <input id="search" type="text" placeholder="Search by patient name or patientId..." />
             </div>
-
+            
             <div class="filters">
                 <label class="chip">
                     <input id="only-warnings" type="checkbox" />
@@ -52,14 +56,15 @@
                 <button class="btn" id="refresh-btn">Refresh</button>
             </div>
         </div>
-
+        
         <div id="patients-grid" class="grid"></div>
-
+        
         <div id="dash-empty" class="empty" style="display:none;"></div>
         <p id="dash-msg" style="margin-top:14px;"></p>
     </div>
-
+    
     <script src="dashboard.js"></script>
+    <script src="bg-video.js"></script>
 </body>
 
 </html>
