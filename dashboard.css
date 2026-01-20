@@ -98,9 +98,10 @@
 .grid {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
 }
+
 
 .patient-card {
   padding: 16px;
@@ -108,9 +109,11 @@
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.06);
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  gap: 18px;
+  align-items: stretch;
 }
+
 
 .pc-head {
   display: flex;
@@ -159,10 +162,13 @@
 }
 
 .vitals {
+  flex: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
   gap: 10px;
+  align-content: start;
 }
+
 
 .v {
   padding: 10px 12px;
@@ -217,4 +223,48 @@
   border: 1px dashed rgba(255,255,255,0.18);
   background: rgba(0,0,0,0.18);
   opacity: 0.9;
+}
+
+
+
+.pc-left {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pc-meta {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.pc-status {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pc-actions {
+  margin-top: auto;
+}
+
+@media (max-width: 1100px) {
+  .patient-card {
+    flex-direction: column;
+  }
+  .pc-left {
+    flex: 1;
+  }
+  .vitals {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .vitals {
+    grid-template-columns: 1fr;
+  }
 }

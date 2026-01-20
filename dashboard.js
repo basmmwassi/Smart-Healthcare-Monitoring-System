@@ -92,7 +92,6 @@ function makePatientCard(p) {
   const vitals = getVitals(p)
   const ts = getTimestamp(p)
   const alertActive = getAlertActive(p)
-  const msg = p?.message || p?.latest?.message || ''
 
   const badgeText = alertActive && sev === 'NORMAL' ? 'ALERT' : sev
   const badgeCls = badgeClass(alertActive && sev === 'NORMAL' ? 'CRITICAL' : sev)
@@ -133,9 +132,8 @@ function makePatientCard(p) {
       <div class="small">Last update: ${fmtTime(ts)}</div>
       <a class="linkbtn" href="patient.html?patientId=${encodeURIComponent(id)}">View details</a>
     </div>
-
-    ${msg ? `<div class="small">Message: ${String(msg)}</div>` : ``}
   `
+
   return el
 }
 
