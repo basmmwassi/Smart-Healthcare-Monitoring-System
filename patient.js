@@ -26,25 +26,7 @@ function qs(name) {
   return new URLSearchParams(window.location.search).get(name)
 }
 
-function mockLatest(patientId) {
-  const now = new Date().toISOString()
-  return {
-    patientId,
-    patientName: 'Unknown Patient',
-    vitals: { heartRate: 110, spo2: 92, temperature: 38.5, fallDetected: false },
-    finalSeverity: 'CRITICAL',
-    alertActive: true,
-    message: 'Sensor Fault',
-    timestamp: now
-  }
-}
 
-function mockAlerts(patientId) {
-  const now = new Date().toISOString()
-  return [
-    { patientId, severity: 'CRITICAL', message: 'Sensor Fault', timestamp: now }
-  ]
-}
 
 function renderLatest(latest) {
   const title = document.getElementById('p-title')
@@ -102,31 +84,30 @@ function renderAlerts(alerts) {
 }
 
 async function fetchLatest(patientId) {
-  try {
-    const res = await fetch(`${API_BASE}/api/patients/${encodeURIComponent(patientId)}/latest`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) return mockLatest(patientId)
-    return data.latest || data.data || data
-  } catch {
-    return mockLatest(patientId)
-  }
+  const res = await fetch(`${API_BASE}/api/patients/${encodeURIComponent(patientId)}/latest`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data?.message || 'Failed to load latest')
+  return data.latest || data.data || data
 }
 
+
 async function fetchAlerts(patientId) {
-  try {
-    const res = await fetch(`${API_BASE}/api/patients/${encodeURIComponent(patientId)}/alerts?limit=50`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) return mockAlerts(patientId)
-    const list = Array.isArray(data) ? data : Array.isArray(data.alerts) ? data.alerts : Array.isArray(data.data) ? data.data : []
-    return list
-  } catch {
-    return mockAlerts(patientId)
-  }
+  const res = await fetch(`${API_BASE}/api/patients/${encodeURIComponent(patientId)}/alerts?limit=50`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data?.message || 'Failed to load alerts')
+
+  const list =
+    Array.isArray(data) ? data :
+    Array.isArray(data.alerts) ? data.alerts :
+    Array.isArray(data.data) ? data.data : []
+
+  return list
 }
+
 
 async function init() {
   if (!token) {
@@ -140,12 +121,17 @@ async function init() {
     return
   }
 
-  const latest = await fetchLatest(patientId)
-  const alerts = await fetchAlerts(patientId)
-
-  renderLatest(latest)
-  renderAlerts(alerts)
-  setMsg('Loaded patient details.', false)
+  try {
+    const latest = await fetchLatest(patientId)
+    const alerts = await fetchAlerts(patientId)
+    renderLatest(latest)
+    renderAlerts(alerts)
+    setMsg('Loaded patient details.', false)
+  } catch (e) {
+    setMsg(String(e?.message || 'Error loading patient details.'), true)
+    renderAlerts([])
+  }
 }
+
 
 init()

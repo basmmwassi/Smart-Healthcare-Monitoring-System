@@ -206,30 +206,30 @@ async function fetchMe() {
   }
 }
 
-function mockPatients() {
-  const now = new Date()
-  return [
-    {
-      patientId: 'P102',
-      patientName: 'Ahmad Saleh',
-      vitals: { heartRate: 110, spo2: 92, temperature: 38.5, fallDetected: false },
-      severityReport: { heartRate: 'WARNING', spo2: 'CRITICAL', temperature: 'WARNING', fallMotion: 'INFO' },
-      finalSeverity: 'CRITICAL',
-      alertActive: true,
-      message: 'Sensor Fault',
-      timestamp: now.toISOString()
-    },
-    {
-      patientId: 'P205',
-      patientName: 'Sara N.',
-      vitals: { heartRate: 78, spo2: 98, temperature: 36.8, fallDetected: false },
-      severityReport: { heartRate: 'NORMAL', spo2: 'NORMAL', temperature: 'NORMAL', fallMotion: 'INFO' },
-      finalSeverity: 'NORMAL',
-      alertActive: false,
-      timestamp: now.toISOString()
-    }
-  ]
-}
+// function mockPatients() {
+//   const now = new Date()
+//   return [
+//     {
+//       patientId: 'P102',
+//       patientName: 'Ahmad Saleh',
+//       vitals: { heartRate: 110, spo2: 92, temperature: 38.5, fallDetected: false },
+//       severityReport: { heartRate: 'WARNING', spo2: 'CRITICAL', temperature: 'WARNING', fallMotion: 'INFO' },
+//       finalSeverity: 'CRITICAL',
+//       alertActive: true,
+//       message: 'Sensor Fault',
+//       timestamp: now.toISOString()
+//     },
+//     {
+//       patientId: 'P205',
+//       patientName: 'Sara N.',
+//       vitals: { heartRate: 78, spo2: 98, temperature: 36.8, fallDetected: false },
+//       severityReport: { heartRate: 'NORMAL', spo2: 'NORMAL', temperature: 'NORMAL', fallMotion: 'INFO' },
+//       finalSeverity: 'NORMAL',
+//       alertActive: false,
+//       timestamp: now.toISOString()
+//     }
+//   ]
+// }
 
 async function fetchPatients() {
   if (!token) return
@@ -246,19 +246,23 @@ async function fetchPatients() {
     const data = await res.json().catch(() => ({}))
 
     if (!res.ok) {
-      latestPatients = mockPatients()
-      setDashMsg('Using mock data (dashboard endpoint not ready).', true)
+      latestPatients = []
+      setDashMsg(data?.message || 'Failed to load patients.', true)
       applyFilters()
       return
     }
 
-    const list = Array.isArray(data) ? data : Array.isArray(data.patients) ? data.patients : Array.isArray(data.data) ? data.data : []
+    const list =
+      Array.isArray(data) ? data :
+      Array.isArray(data.patients) ? data.patients :
+      Array.isArray(data.data) ? data.data : []
+
     latestPatients = list
     setDashMsg('Dashboard updated.', false)
     applyFilters()
   } catch {
-    latestPatients = mockPatients()
-    setDashMsg('Using mock data (network error).', true)
+    latestPatients = []
+    setDashMsg('Network error while loading patients.', true)
     applyFilters()
   }
 }
