@@ -58,7 +58,7 @@ function renderAlerts(alerts) {
   if (!ul) return
   ul.innerHTML = ''
 
-  if (!alerts.length) {
+  if (!Array.isArray(alerts) || alerts.length === 0) {
     const li = document.createElement('li')
     li.className = 'item'
     li.textContent = 'No alerts'
@@ -66,38 +66,31 @@ function renderAlerts(alerts) {
     return
   }
 
-  for (const a of alerts) {
-    const sev = String(a?.severity || a?.finalSeverity || 'INFO').toUpperCase()
-    const msg = a?.message || 'Alert'
-    const ts = a?.timestamp
+  for (let i = 0; i < alerts.length; i++) {
+    const a = alerts[i] || {}
+    const sev = String(a.severity || a.finalSeverity || 'INFO').toUpperCase()
+    const msg = String(a.message || 'Alert')
+    const ts = a.timestamp
+    const isLatest = i === 0
 
     const li = document.createElement('li')
     li.className = 'item'
     li.innerHTML = `
-  <div class="item-row">
-    <div class="item-left">
-      <div>
-        <span class="badge ${badgeClass(sev)}">${sev}</span>
-        ${isLatest ? `<span class="latest-tag">Latest</span>` : ``}
+      <div class="item-row">
+        <div class="item-left">
+          <div>
+            <span class="badge ${badgeClass(sev)}">${sev}</span>
+            ${isLatest ? `<span class="latest-tag">Latest</span>` : ``}
+            <span style="margin-left:10px;">${msg}</span>
+          </div>
+        </div>
+        <div class="item-right">${fmtTime(ts)}</div>
       </div>
-
-      <div class="item-vitals">
-        <span class="pill">HR: ${v.heartRate ?? '--'}</span>
-        <span class="pill">SpO₂: ${v.spo2 ?? '--'}</span>
-        <span class="pill">Temp: ${v.temperature ?? '--'}</span>
-        <span class="pill">Fall: ${v.fallDetected === true ? 'Yes' : v.fallDetected === false ? 'No' : '--'}</span>
-      </div>
-    </div>
-
-    <div class="item-right">
-      ${fmtTime(ts)}
-    </div>
-  </div>
-`
-
+    `
     ul.appendChild(li)
   }
 }
+
 
 
 
@@ -106,7 +99,7 @@ function renderHistory(history) {
   if (!ul) return
   ul.innerHTML = ''
 
-  if (!history.length) {
+  if (!Array.isArray(history) || history.length === 0) {
     const li = document.createElement('li')
     li.className = 'item'
     li.textContent = 'No readings'
@@ -119,19 +112,18 @@ function renderHistory(history) {
     const v = h.vitals || {}
     const sev = String(h.finalSeverity || 'NORMAL').toUpperCase()
     const ts = h.timestamp
-
     const isLatest = i === 0
 
     const li = document.createElement('li')
     li.className = 'item'
     li.innerHTML = `
       <div class="item-row">
-        <div class="item-main">
+        <div class="item-left">
           <div>
             <span class="badge ${badgeClass(sev)}">${sev}</span>
             ${isLatest ? `<span class="latest-tag">Latest</span>` : ``}
           </div>
-          <div class="small">${fmtTime(ts)}</div>
+
           <div class="item-vitals">
             <span class="pill">HR: ${v.heartRate ?? '--'}</span>
             <span class="pill">SpO₂: ${v.spo2 ?? '--'}</span>
@@ -139,6 +131,8 @@ function renderHistory(history) {
             <span class="pill">Fall: ${v.fallDetected === true ? 'Yes' : v.fallDetected === false ? 'No' : '--'}</span>
           </div>
         </div>
+
+        <div class="item-right">${fmtTime(ts)}</div>
       </div>
     `
     ul.appendChild(li)

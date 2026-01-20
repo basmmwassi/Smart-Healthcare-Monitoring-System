@@ -176,9 +176,28 @@ function applyFilters() {
     })
   }
 
+  const severityRank = {
+    CRITICAL: 3,
+    WARNING: 2,
+    NORMAL: 1,
+    INFO: 0
+  }
+
+  filtered.sort((a, b) => {
+    const sa = severityRank[String(getSeverity(a)).toUpperCase()] ?? 0
+    const sb = severityRank[String(getSeverity(b)).toUpperCase()] ?? 0
+
+    if (sb !== sa) return sb - sa
+
+    const ta = new Date(getTimestamp(a) || 0).getTime()
+    const tb = new Date(getTimestamp(b) || 0).getTime()
+    return tb - ta
+  })
+
   renderStats(filtered)
   renderPatients(filtered)
 }
+
 
 async function fetchMe() {
   if (!token) {
