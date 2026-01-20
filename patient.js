@@ -74,14 +74,79 @@ function renderAlerts(alerts) {
     const li = document.createElement('li')
     li.className = 'item'
     li.innerHTML = `
+  <div class="item-row">
+    <div class="item-left">
       <div>
-        <div><span class="badge ${badgeClass(sev)}">${sev}</span> ${msg}</div>
-        <div class="small">${fmtTime(ts)}</div>
+        <span class="badge ${badgeClass(sev)}">${sev}</span>
+        ${isLatest ? `<span class="latest-tag">Latest</span>` : ``}
+      </div>
+
+      <div class="item-vitals">
+        <span class="pill">HR: ${v.heartRate ?? '--'}</span>
+        <span class="pill">SpO₂: ${v.spo2 ?? '--'}</span>
+        <span class="pill">Temp: ${v.temperature ?? '--'}</span>
+        <span class="pill">Fall: ${v.fallDetected === true ? 'Yes' : v.fallDetected === false ? 'No' : '--'}</span>
+      </div>
+    </div>
+
+    <div class="item-right">
+      ${fmtTime(ts)}
+    </div>
+  </div>
+`
+
+    ul.appendChild(li)
+  }
+}
+
+
+
+function renderHistory(history) {
+  const ul = document.getElementById('p-history')
+  if (!ul) return
+  ul.innerHTML = ''
+
+  if (!history.length) {
+    const li = document.createElement('li')
+    li.className = 'item'
+    li.textContent = 'No readings'
+    ul.appendChild(li)
+    return
+  }
+
+  for (let i = 0; i < history.length; i++) {
+    const h = history[i] || {}
+    const v = h.vitals || {}
+    const sev = String(h.finalSeverity || 'NORMAL').toUpperCase()
+    const ts = h.timestamp
+
+    const isLatest = i === 0
+
+    const li = document.createElement('li')
+    li.className = 'item'
+    li.innerHTML = `
+      <div class="item-row">
+        <div class="item-main">
+          <div>
+            <span class="badge ${badgeClass(sev)}">${sev}</span>
+            ${isLatest ? `<span class="latest-tag">Latest</span>` : ``}
+          </div>
+          <div class="small">${fmtTime(ts)}</div>
+          <div class="item-vitals">
+            <span class="pill">HR: ${v.heartRate ?? '--'}</span>
+            <span class="pill">SpO₂: ${v.spo2 ?? '--'}</span>
+            <span class="pill">Temp: ${v.temperature ?? '--'}</span>
+            <span class="pill">Fall: ${v.fallDetected === true ? 'Yes' : v.fallDetected === false ? 'No' : '--'}</span>
+          </div>
+        </div>
       </div>
     `
     ul.appendChild(li)
   }
 }
+
+
+
 
 async function fetchLatest(patientId) {
   const res = await fetch(`${API_BASE}/api/patients/${encodeURIComponent(patientId)}/latest`, {
@@ -102,8 +167,23 @@ async function fetchAlerts(patientId) {
 
   const list =
     Array.isArray(data) ? data :
-    Array.isArray(data.alerts) ? data.alerts :
-    Array.isArray(data.data) ? data.data : []
+      Array.isArray(data.alerts) ? data.alerts :
+        Array.isArray(data.data) ? data.data : []
+
+  return list
+}
+
+async function fetchHistory(patientId) {
+  const res = await fetch(`${API_BASE}/api/patients/${encodeURIComponent(patientId)}/history?limit=200`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data?.message || 'Failed to load history')
+
+  const list =
+    Array.isArray(data) ? data :
+      Array.isArray(data.history) ? data.history :
+        Array.isArray(data.data) ? data.data : []
 
   return list
 }
@@ -123,12 +203,18 @@ async function init() {
 
   try {
     const latest = await fetchLatest(patientId)
+    const history = await fetchHistory(patientId)
     const alerts = await fetchAlerts(patientId)
+
     renderLatest(latest)
+    renderHistory(history)
     renderAlerts(alerts)
+
     setMsg('Loaded patient details.', false)
+
   } catch (e) {
     setMsg(String(e?.message || 'Error loading patient details.'), true)
+    renderHistory([])
     renderAlerts([])
   }
 }

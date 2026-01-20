@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Patient Details</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Patient Details</title>
+    <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="patient.css" />
 </head>
 
@@ -12,7 +13,7 @@
 <body>
     <video id="bgVideo" class="bg-video" autoplay muted playsinline></video>
     <div class="bg-overlay"></div>
-    
+
     <div class="wrap">
         <div class="top">
             <div>
@@ -21,16 +22,21 @@
             </div>
             <a class="btn" href="dashboard.html">Back to Dashboard</a>
         </div>
-        
+
         <div class="grid" id="p-cards"></div>
-        
+
+        <h2 style="margin-top:20px;">Readings</h2>
+        <ul class="list" id="p-history"></ul>
+
         <h2 style="margin-top:20px;">Alerts</h2>
         <ul class="list" id="p-alerts"></ul>
-        
+
+
         <p id="p-msg" style="margin-top:14px;"></p>
     </div>
-    
+
     <script src="patient.js"></script>
     <script src="bg-video.js"></script>
 </body>
+
 </html>
