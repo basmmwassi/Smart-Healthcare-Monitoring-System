@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="patient.css" />
 </head>
 
-
 <body>
     <video id="bgVideo" class="bg-video" autoplay muted playsinline></video>
     <div class="bg-overlay"></div>
@@ -25,6 +24,24 @@
 
         <div class="grid" id="p-cards"></div>
 
+        <div class="export-bar">
+            <div class="date-range">
+                <label>
+                    From
+                    <input type="datetime-local" id="fromDate">
+                </label>
+                <label>
+                    To
+                    <input type="datetime-local" id="toDate">
+                </label>
+            </div>
+
+            <div class="export-actions">
+                <button class="btn" id="downloadReadingsPdf">Download Readings PDF</button>
+                <button class="btn" id="downloadAlertsPdf">Download Alerts PDF</button>
+            </div>
+        </div>
+
         <div class="two-cols">
             <div class="col">
                 <h2>Readings</h2>
@@ -37,13 +54,15 @@
             </div>
         </div>
 
-
-
         <p id="p-msg" style="margin-top:14px;"></p>
     </div>
 
+    <div id="pdfContainer" style="position:fixed; left:0; top:0; width:900px; opacity:0; pointer-events:none; z-index:-1;"></div>
+
     <script src="patient.js"></script>
     <script src="bg-video.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 
 </html>
