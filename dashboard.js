@@ -68,6 +68,48 @@ function getTimestamp(p) {
   return p?.timestamp || p?.latest?.timestamp || p?.updatedAt || p?.createdAt || null
 }
 
+
+
+function getSensorFaults(p) {
+  const sf = p?.sensorFaults || p?.latest?.sensorFaults || p?.sensor_faults || {}
+  return {
+    heartRate: Boolean(sf.heartRate ?? sf.heart_rate),
+    spo2: Boolean(sf.spo2),
+    temperature: Boolean(sf.temperature)
+  }
+}
+
+
+function sensorDetails(sf) {
+  const anyIssue = sf.heartRate || sf.spo2 || sf.temperature
+  const cls = anyIssue ? 'sensor-fault' : 'sensor-ok'
+  const lines = [
+    { label: 'Heart Rate', ok: !sf.heartRate },
+    { label: 'SpO₂', ok: !sf.spo2 },
+    { label: 'Temperature', ok: !sf.temperature }
+  ]
+  return { cls, lines }
+}
+
+function sensorSummaryText(sf) {
+  const bad = []
+  if (sf.heartRate) bad.push('Heart Rate')
+  if (sf.spo2) bad.push('SpO₂')
+  if (sf.temperature) bad.push('Temperature')
+
+  if (bad.length === 0) {
+    return { text: 'Sensors OK', cls: 'sensor-ok', title: 'All sensors are working normally.' }
+  }
+
+  return {
+    text: 'Sensor Issue',
+    cls: 'sensor-fault',
+    title: `Issue detected in: ${bad.join(', ')}`
+  }
+}
+
+
+
 function renderStats(patients) {
   const total = patients.length
   const critical = patients.filter(p => String(getSeverity(p)).toUpperCase() === 'CRITICAL' || getAlertActive(p)).length
@@ -96,7 +138,21 @@ function makePatientCard(p) {
   const badgeText = alertActive && sev === 'NORMAL' ? 'ALERT' : sev
   const badgeCls = badgeClass(alertActive && sev === 'NORMAL' ? 'CRITICAL' : sev)
 
-  const fallText = vitals.fallDetected === true ? 'Yes' : vitals.fallDetected === false ? 'No' : 'Unknown'
+  const fallText =
+    vitals.fallDetected === true
+      ? 'Yes'
+      : vitals.fallDetected === false
+      ? 'No'
+      : 'Unknown'
+
+  const sf = getSensorFaults(p)
+  const sfd = sensorDetails(sf)
+
+  const sensorLinesHtml = sfd.lines.map(x => {
+    const statusText = x.ok ? 'OK' : 'Issue'
+    const statusCls = x.ok ? 's-ok' : 's-bad'
+    return `<div class="s-row"><span class="s-label">${x.label}</span><span class="s-status ${statusCls}">${statusText}</span></div>`
+  }).join('')
 
   const el = document.createElement('div')
   el.className = 'patient-card'
@@ -129,13 +185,30 @@ function makePatientCard(p) {
     </div>
 
     <div class="pc-foot">
-      <div class="small">Last update: ${fmtTime(ts)}</div>
-      <a class="linkbtn" href="patient.html?patientId=${encodeURIComponent(id)}">View details</a>
+  <div class="pc-foot-actions">
+    <div class="sensor-box ${sfd.cls}">
+      <div class="sensor-title">Sensors</div>
+      <div class="sensor-list">
+        ${sensorLinesHtml}
+      </div>
     </div>
+
+    <a class="linkbtn" href="patient.html?patientId=${encodeURIComponent(id)}">
+      View details
+    </a>
+  </div>
+
+  <div class="small pc-last-update">
+    Last update: ${fmtTime(ts)}
+  </div>
+</div>
+
   `
 
   return el
 }
+
+
 
 function renderPatients(patients) {
   const grid = document.getElementById('patients-grid')
@@ -223,30 +296,6 @@ async function fetchMe() {
   }
 }
 
-// function mockPatients() {
-//   const now = new Date()
-//   return [
-//     {
-//       patientId: 'P102',
-//       patientName: 'Ahmad Saleh',
-//       vitals: { heartRate: 110, spo2: 92, temperature: 38.5, fallDetected: false },
-//       severityReport: { heartRate: 'WARNING', spo2: 'CRITICAL', temperature: 'WARNING', fallMotion: 'INFO' },
-//       finalSeverity: 'CRITICAL',
-//       alertActive: true,
-//       message: 'Sensor Fault',
-//       timestamp: now.toISOString()
-//     },
-//     {
-//       patientId: 'P205',
-//       patientName: 'Sara N.',
-//       vitals: { heartRate: 78, spo2: 98, temperature: 36.8, fallDetected: false },
-//       severityReport: { heartRate: 'NORMAL', spo2: 'NORMAL', temperature: 'NORMAL', fallMotion: 'INFO' },
-//       finalSeverity: 'NORMAL',
-//       alertActive: false,
-//       timestamp: now.toISOString()
-//     }
-//   ]
-// }
 
 async function fetchPatients() {
   if (!token) return

@@ -127,7 +127,7 @@ h1, h2 { text-align: center; margin: 0; }
 .signup-link {
   margin-top: 14px;
   text-align: center;
-  position: static;   /* مهم: يلغي left */
+  position: static;  
 }
 
 .admin-link,

@@ -169,24 +169,21 @@
   align-content: start;
 }
 
-
 .v {
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.08);
+  padding: 8px 10px;
+  border-radius: 12px;
   background: rgba(0,0,0,0.18);
 }
 
 .v .k {
-  font-size: 12px;
-  opacity: 0.85;
+  font-size: 11px;
 }
 
 .v .val {
-  margin-top: 4px;
-  font-size: 18px;
-  font-weight: 800;
+  margin-top: 3px;
+  font-size: 16px;
 }
+
 
 .pc-foot {
   display: flex;
@@ -195,6 +192,7 @@
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 2px;
+  align-items: flex-end;
 }
 
 .linkbtn {
@@ -267,4 +265,71 @@
   .vitals {
     grid-template-columns: 1fr;
   }
+}
+
+
+
+.pc-foot-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sensor-box {
+  min-width: 160px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: white;
+}
+
+.sensor-title {
+  font-weight: 900;
+  font-size: 12px;
+  margin-bottom: 6px;
+  opacity: 0.95;
+}
+
+.sensor-list {
+  display: grid;
+  gap: 4px;
+}
+
+.s-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+}
+
+.s-label {
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+.s-status {
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  white-space: nowrap;
+}
+
+.s-ok {
+  background: rgba(92, 255, 160, 0.12);
+}
+
+.s-bad {
+  background: rgba(255, 214, 102, 0.14);
+}
+
+.sensor-ok {
+  background: rgba(92, 255, 160, 0.08);
+}
+
+.sensor-fault {
+  background: rgba(255, 214, 102, 0.10);
 }
