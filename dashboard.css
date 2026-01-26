@@ -313,18 +313,22 @@
   font-weight: 900;
   padding: 2px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
+  font-size: 11px;
   white-space: nowrap;
 }
 
 .s-ok {
-  background: rgba(92, 255, 160, 0.12);
+  color: #0b0f0d;
+  background: rgba(25, 135, 84, 0.25);
+  border: 1px solid rgba(25, 135, 84, 0.4);
 }
 
 .s-bad {
-  background: rgba(255, 214, 102, 0.14);
+  color: #271c1d;
+  background: rgba(58, 55, 55, 0.25);
+  border: 1px solid rgba(220, 53, 69, 0.45);
 }
+
 
 .sensor-ok {
   background: rgba(92, 255, 160, 0.08);
@@ -332,4 +336,21 @@
 
 .sensor-fault {
   background: rgba(255, 214, 102, 0.10);
+}
+
+
+
+
+.val-normal {
+  color: #ffffff;
+}
+
+.val-warning {
+  color: #ff9800;
+  font-weight: 900;
+}
+
+.val-critical {
+  color: #ff4d4d;
+  font-weight: 900;
 }

@@ -127,6 +127,43 @@ function renderStats(patients) {
   if (d) d.textContent = String(activeDevices)
 }
 
+
+
+function normalizeLevel(x) {
+  const s = String(x || '').toUpperCase()
+  if (s === 'CRITICAL' || s === 'WARNING' || s === 'INFO' || s === 'NORMAL') return s
+  return 'NORMAL'
+}
+
+function getVitalLevel(p, vitalKey) {
+  const sr = p?.severityReport || p?.latest?.severityReport || {}
+
+  const map = {
+    heartRate: sr.heartRate,
+    spo2: sr.spo2,
+    temperature: sr.temperature,
+    fallMotion: sr.fallMotion
+  }
+
+  if (map[vitalKey]) return normalizeLevel(map[vitalKey])
+
+  const sev = p?.severity || p?.severity_report || p?.latest?.severity || {}
+  if (vitalKey === 'heartRate') return normalizeLevel(sev?.heart_rate?.level || sev?.heartRate?.level || sev?.heart_rate || sev?.heartRate)
+  if (vitalKey === 'spo2') return normalizeLevel(sev?.spo2?.level || sev?.spo2)
+  if (vitalKey === 'temperature') return normalizeLevel(sev?.temperature?.level || sev?.temperature)
+  if (vitalKey === 'fallMotion') return normalizeLevel(sev?.fall_motion?.level || sev?.fallMotion?.level || sev?.fall_motion || sev?.fallMotion)
+
+  return 'NORMAL'
+}
+
+function vitalValClass(level) {
+  const s = normalizeLevel(level)
+  if (s === 'CRITICAL') return 'val-critical'
+  if (s === 'WARNING') return 'val-warning'
+  return 'val-normal'
+}
+
+
 function makePatientCard(p) {
   const id = getPatientId(p)
   const name = getPatientName(p)
@@ -138,16 +175,14 @@ function makePatientCard(p) {
   const badgeText = alertActive && sev === 'NORMAL' ? 'ALERT' : sev
   const badgeCls = badgeClass(alertActive && sev === 'NORMAL' ? 'CRITICAL' : sev)
 
-  const fallText =
-    vitals.fallDetected === true
-      ? 'Yes'
-      : vitals.fallDetected === false
-      ? 'No'
-      : 'Unknown'
+  const fallText = vitals.fallDetected === true ? 'Yes' : vitals.fallDetected === false ? 'No' : 'Unknown'
+
+  const hrLvl = getVitalLevel(p, 'heartRate')
+  const spo2Lvl = getVitalLevel(p, 'spo2')
+  const tempLvl = getVitalLevel(p, 'temperature')
 
   const sf = getSensorFaults(p)
   const sfd = sensorDetails(sf)
-
   const sensorLinesHtml = sfd.lines.map(x => {
     const statusText = x.ok ? 'OK' : 'Issue'
     const statusCls = x.ok ? 's-ok' : 's-bad'
@@ -168,15 +203,15 @@ function makePatientCard(p) {
     <div class="vitals">
       <div class="v">
         <div class="k">Heart Rate</div>
-        <div class="val">${vitals.heartRate ?? '--'}</div>
+        <div class="val ${vitalValClass(hrLvl)}">${vitals.heartRate ?? '--'}</div>
       </div>
       <div class="v">
         <div class="k">SpO₂</div>
-        <div class="val">${vitals.spo2 ?? '--'}</div>
+        <div class="val ${vitalValClass(spo2Lvl)}">${vitals.spo2 ?? '--'}</div>
       </div>
       <div class="v">
         <div class="k">Temperature</div>
-        <div class="val">${vitals.temperature ?? '--'}</div>
+        <div class="val ${vitalValClass(tempLvl)}">${vitals.temperature ?? '--'}</div>
       </div>
       <div class="v">
         <div class="k">Fall Detected</div>
@@ -185,28 +220,25 @@ function makePatientCard(p) {
     </div>
 
     <div class="pc-foot">
-  <div class="pc-foot-actions">
-    <div class="sensor-box ${sfd.cls}">
-      <div class="sensor-title">Sensors</div>
-      <div class="sensor-list">
-        ${sensorLinesHtml}
+      <div class="pc-foot-actions">
+        <div class="sensor-box ${sfd.cls}">
+          <div class="sensor-title">Sensors</div>
+          <div class="sensor-list">
+            ${sensorLinesHtml}
+          </div>
+        </div>
+
+        <a class="linkbtn" href="patient.html?patientId=${encodeURIComponent(id)}">
+          View details
+        </a>
       </div>
+
+      <div class="small pc-last-update">Last update: ${fmtTime(ts)}</div>
     </div>
-
-    <a class="linkbtn" href="patient.html?patientId=${encodeURIComponent(id)}">
-      View details
-    </a>
-  </div>
-
-  <div class="small pc-last-update">
-    Last update: ${fmtTime(ts)}
-  </div>
-</div>
-
   `
-
   return el
 }
+
 
 
 
