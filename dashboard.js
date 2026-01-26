@@ -176,6 +176,7 @@ function makePatientCard(p) {
   const badgeCls = badgeClass(alertActive && sev === 'NORMAL' ? 'CRITICAL' : sev)
 
   const fallText = vitals.fallDetected === true ? 'Yes' : vitals.fallDetected === false ? 'No' : 'Unknown'
+  const fallLvl = getVitalLevel(p, 'fallMotion')
 
   const hrLvl = getVitalLevel(p, 'heartRate')
   const spo2Lvl = getVitalLevel(p, 'spo2')
@@ -215,7 +216,7 @@ function makePatientCard(p) {
       </div>
       <div class="v">
         <div class="k">Fall Detected</div>
-        <div class="val">${fallText}</div>
+        <div class="val ${vitalValClass(fallLvl)}">${fallText}</div>
       </div>
     </div>
 
@@ -352,8 +353,8 @@ async function fetchPatients() {
 
     const list =
       Array.isArray(data) ? data :
-      Array.isArray(data.patients) ? data.patients :
-      Array.isArray(data.data) ? data.data : []
+        Array.isArray(data.patients) ? data.patients :
+          Array.isArray(data.data) ? data.data : []
 
     latestPatients = list
     setDashMsg('Dashboard updated.', false)
