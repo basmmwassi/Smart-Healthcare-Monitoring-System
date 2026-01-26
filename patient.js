@@ -58,16 +58,22 @@ function renderAlerts(alerts) {
   if (!ul) return
   ul.innerHTML = ''
 
-  if (!Array.isArray(alerts) || alerts.length === 0) {
+  const list = Array.isArray(alerts) ? alerts : []
+  const criticalAlerts = list.filter(a => {
+    const sev = String((a || {}).severity || (a || {}).finalSeverity || 'INFO').toUpperCase()
+    return sev === 'CRITICAL'
+  })
+
+  if (criticalAlerts.length === 0) {
     const li = document.createElement('li')
     li.className = 'item'
-    li.textContent = 'No alerts'
+    li.textContent = 'No critical alerts'
     ul.appendChild(li)
     return
   }
 
-  for (let i = 0; i < alerts.length; i++) {
-    const a = alerts[i] || {}
+  for (let i = 0; i < criticalAlerts.length; i++) {
+    const a = criticalAlerts[i] || {}
     const sev = String(a.severity || a.finalSeverity || 'INFO').toUpperCase()
     const msg = String(a.message || 'Alert')
     const ts = a.timestamp
@@ -97,7 +103,6 @@ function renderAlerts(alerts) {
     <div class="item-right">${fmtTime(ts)}</div>
   </div>
 `
-
     ul.appendChild(li)
   }
 }
@@ -271,13 +276,20 @@ async function downloadPdf(type) {
     }
 
     list = type === 'readings' ? data.history : data.alerts
+
+    if (type === 'alerts') {
+      list = (Array.isArray(list) ? list : []).filter(x => {
+        const sev = String(x?.severity || x?.finalSeverity || 'INFO').toUpperCase()
+        return sev === 'CRITICAL'
+      })
+    }
   } catch {
     setMsg('Fetch error', true)
     return
   }
 
   if (!Array.isArray(list) || list.length === 0) {
-    setMsg('No data to export', true)
+    setMsg(type === 'alerts' ? 'No critical alerts to export' : 'No data to export', true)
     return
   }
 
@@ -285,8 +297,6 @@ async function downloadPdf(type) {
   const pdf = new jsPDF('p', 'mm', 'a4')
 
   let y = 15
-  const lineHeight = 8
-
   const patientName = document.getElementById('p-title')?.textContent || 'Patient'
   const title = type === 'readings' ? 'Readings' : 'Alerts'
 
@@ -297,10 +307,9 @@ async function downloadPdf(type) {
 
   pdf.setFontSize(10)
   pdf.text(`Range: ${fromEl?.value || 'Any'} to ${toEl?.value || 'Any'}`, 10, y)
-
   y += 10
 
-  list.forEach((x) => {
+  list.forEach(x => {
     if (y > 280) {
       pdf.addPage()
       y = 15
@@ -317,7 +326,6 @@ async function downloadPdf(type) {
       : String(x.severity || x.finalSeverity || 'INFO').toUpperCase()
 
     pdf.setFontSize(10)
-
     if (sev === 'CRITICAL') pdf.setTextColor(200, 0, 0)
     else if (sev === 'WARNING') pdf.setTextColor(180, 120, 0)
     else pdf.setTextColor(0, 0, 0)
@@ -328,23 +336,36 @@ async function downloadPdf(type) {
     pdf.setTextColor(0, 0, 0)
 
     const vitalsText = `HR: ${v.heartRate ?? '--'} | SpO2: ${v.spo2 ?? '--'} | Temp: ${v.temperature ?? '--'} | Fall: ${fall}`
-
     pdf.text(vitalsText, 10, y)
+    y += 6
+
+    const sf = x.sensorFaults || x.sensor_faults || {}
+    const hrOk = !(sf.heartRate ?? sf.heart_rate)
+    const spo2Ok = !(sf.spo2)
+    const tempOk = !(sf.temperature)
+
+    const sensorsText = `Sensors: HR=${hrOk ? 'OK' : 'Issue'}, SpO2=${spo2Ok ? 'OK' : 'Issue'}, Temp=${tempOk ? 'OK' : 'Issue'}`
+    pdf.setFontSize(9)
+    pdf.text(sensorsText, 10, y)
+    y += 6
+
+    const msg = String(x.message || x.decision?.reason || '—')
+    const msgLines = pdf.splitTextToSize(`Message: ${msg}`, 180)
+    pdf.text(msgLines, 10, y)
+    y += msgLines.length * 5
 
     const pageWidth = pdf.internal.pageSize.getWidth()
     pdf.text(ts, pageWidth - 10, y, { align: 'right' })
-
-    y += 8
+    y += 5
 
     pdf.setDrawColor(0, 0, 0)
     pdf.line(10, y, pageWidth - 10, y)
     y += 8
   })
 
-
-
   pdf.save(`${patientName}-${title}-${new Date().toISOString().slice(0, 10)}.pdf`)
 }
+
 
 
 
